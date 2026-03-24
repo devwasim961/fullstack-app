@@ -8,7 +8,6 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-# Database config from environment variables
 DB_CONFIG = {
     'host':     os.environ.get('DB_HOST',     'db'),
     'user':     os.environ.get('DB_USER',     'appuser'),
@@ -17,7 +16,6 @@ DB_CONFIG = {
 }
 
 def get_db():
-    """Connect to database with retry logic"""
     retries = 5
     while retries:
         try:
@@ -30,7 +28,6 @@ def get_db():
     raise Exception("Cannot connect to database")
 
 def init_db():
-    """Create users table if not exists"""
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
@@ -44,11 +41,6 @@ def init_db():
     cursor.close()
     conn.close()
     print("Database initialized ✅")
-
-# Initialize DB on startup
-init_db()
-
-# ── Routes ──────────────────────────────────────
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -73,10 +65,8 @@ def add_user():
         data  = request.get_json()
         name  = data.get('name')
         email = data.get('email')
-
         if not name or not email:
             return jsonify({"error": "Name and email required"}), 400
-
         conn   = get_db()
         cursor = conn.cursor()
         cursor.execute(
@@ -87,11 +77,14 @@ def add_user():
         cursor.close()
         conn.close()
         return jsonify({"message": "User added successfully"}), 201
-
     except mysql.connector.IntegrityError:
         return jsonify({"error": "Email already exists"}), 409
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ── init_db removed from here ──
+# DB initialises on first request now
+# not on startup
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
