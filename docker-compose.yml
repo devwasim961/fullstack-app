@@ -1,12 +1,6 @@
 
-version: "3.8"
 
-services:
 
-  # ── Frontend (nginx serving HTML) ──
-  frontend:
-    build: ./frontend
-    container_name: frontend
 version: "3.8"
 
 services:
@@ -60,49 +54,4 @@ volumes:
 
 networks:
   appnetwork:
-    driver: bridge    ports:
-      - "8080:80"
-    depends_on:
-      - backend
-    networks:
-      - appnetwork
-    restart: always
-
-  # ── Backend (Python Flask API) ──
-  backend:
-    build: ./backend
-    container_name: backend
-    ports:
-      - "5000:5000"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    depends_on:
-      - db
-    networks:
-      - appnetwork
-    restart: on-failure
-
-  # ── Database (MySQL) ──
-  db:
-    image: mysql:8
-    container_name: db
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - appnetwork
-    restart: always
-
-volumes:
-  dbdata:
-
-networks:
-  appnetwork:
-    driver: bridge
+    driver: bridge   
